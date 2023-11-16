@@ -1,0 +1,68 @@
+import { Button , HorizontalBox, VerticalBox, StyleMetrics,StandardButton } from "std-widgets.slint";
+export component MainApp inherits Window {
+    title: "本地相机测试";
+    width: 800px;
+    height: 600px;
+    background: StyleMetrics.window-background;
+    in-out property <bool> camera-opened: false;
+    in-out property <int> camera-width: 1280;
+    in-out property <int> camera-height: 720;
+    in property <image> camera-frame <=> camera.source;
+    in property <string> error;
+    callback open-camera(int, int);
+    callback show_confirm_popup;
+    show_confirm_popup => { confirm_popup.show(); }   
+    VerticalBox {
+        alignment: space-between;
+        HorizontalLayout {
+            height: 25px;
+            alignment: center;
+            Button { 
+                text:  camera-opened? "关闭相机": "打开相机";
+                width: 100px;
+                height: 40px;
+                clicked => {
+                    camera-opened = !camera-opened;
+                    if(camera-opened){
+                        open-camera(camera-width, camera-height)   
+                    }                    
+                }
+            }
+        }
+        HorizontalLayout {
+            alignment: center;
+            Rectangle {
+                border-width: 1px;
+                border-radius: 3px;
+                preferred-width: 100%;
+                height: 360px;
+                camera := Image {
+                    preferred-width: 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+    confirm_popup := PopupWindow {
+        x: 250px;
+        y: 250px;
+        width: min(confirm_popup_layout.preferred-width, root.width - 80px);
+    
+        Rectangle {
+            background: root.background;
+            border-color: confirm_popup_text.color;
+            border-width: 1px;
+        }
+    
+        confirm_popup_layout := Dialog {
+            height:100%; width: 100%;
+    
+            confirm_popup_text := Text {
+                text: error;
+                wrap: word-wrap;
+            }
+    
+            StandardButton { kind: yes; clicked => { } }
+        }
+    }
+}
